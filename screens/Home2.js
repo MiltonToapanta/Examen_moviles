@@ -10,14 +10,66 @@ import {
   ActivityIndicator
 } from 'react-native';
 
-const GEMINI_API_KEY = 'AIzaSyABUFpGu7x7exe665Q_AT0jb8daLYOT6L0';
 const TEMPERATURE = 0.8;
+
+// Base de conocimiento sobre React y React Native
+const REACT_KNOWLEDGE = {
+  'componente': 'Función o clase que retorna elementos JSX',
+  'jsx': 'Sintaxis que combina JavaScript con HTML',
+  'props': 'Datos que pasan de padre a hijo componente',
+  'state': 'Datos internos que cambian en componente',
+  'hook': 'Funciones que añaden estado a componentes',
+  'usestate': 'Hook para manejar estado en componentes',
+  'useeffect': 'Hook para efectos secundarios',
+  'render': 'Proceso de mostrar componentes en pantalla',
+  'virtual dom': 'Copia ligera del DOM para optimizar',
+  'native': 'Framework para apps móviles con React',
+  'view': 'Contenedor básico en React Native',
+  'text': 'Componente para mostrar texto en RN',
+  'stylesheet': 'Objeto para definir estilos en RN',
+  'flatlist': 'Lista optimizada para renderizar datos',
+  'touchable': 'Componente clickeable en React Native',
+  'navigation': 'Sistema para navegar entre pantallas',
+  'expo': 'Herramienta para desarrollar con RN',
+  'lifecycle': 'Ciclo de vida de un componente React',
+  'context': 'API para compartir datos globalmente',
+  'reducer': 'Función que maneja cambios de estado',
+  'memo': 'Optimización para evitar re-renders',
+  'key': 'Identificador único para elementos en lista',
+  'ref': 'Referencia directa a elemento del DOM',
+  'fragment': 'Agrupa elementos sin nodo extra',
+  'portal': 'Renderiza fuera de jerarquía padre',
+};
 
 export default function Home2({ navigation }) {
   const [question, setQuestion] = useState('');
   const [response, setResponse] = useState('');
   const [tokens, setTokens] = useState(0);
   const [loading, setLoading] = useState(false);
+
+  const generateResponse = (query) => {
+    const lowerQuery = query.toLowerCase();
+
+    // Buscar coincidencias en la base de conocimiento
+    for (const [key, value] of Object.entries(REACT_KNOWLEDGE)) {
+      if (lowerQuery.includes(key)) {
+        return value;
+      }
+    }
+
+    // Respuestas por patrones
+    if (lowerQuery.includes('qué es') || lowerQuery.includes('que es')) {
+      return 'Concepto fundamental en React ecosystem';
+    } else if (lowerQuery.includes('cómo') || lowerQuery.includes('como')) {
+      return 'Se implementa usando funciones y JSX';
+    } else if (lowerQuery.includes('para qué') || lowerQuery.includes('para que')) {
+      return 'Para crear interfaces interactivas';
+    } else if (lowerQuery.includes('diferencia')) {
+      return 'Difieren en uso y optimización';
+    } else {
+      return 'Pregunta sobre React o React Native';
+    }
+  };
 
   const askQuestion = async () => {
     if (!question.trim()) return;
@@ -26,48 +78,23 @@ export default function Home2({ navigation }) {
     setResponse('');
     setTokens(0);
 
-    try {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
-
-      const requestBody = {
-        contents: [{
-          parts: [{
-            text: `Contexto: Solo responde sobre React. Pregunta: ${question}. Responde en máximo 50 caracteres.`
-          }]
-        }],
-        generationConfig: {
-          temperature: TEMPERATURE,
-          maxOutputTokens: 50,
-        }
-      };
-
-      const apiResponse = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody),
-      });
-
-      const data = await apiResponse.json();
-
-      if (data.candidates && data.candidates[0]) {
-        const generatedText = data.candidates[0].content.parts[0].text;
+    // Simular delay de API
+    setTimeout(() => {
+      try {
+        const generatedText = generateResponse(question);
         const limitedResponse = generatedText.substring(0, 50);
         setResponse(limitedResponse);
 
-        // Calcular tokens aproximados (palabras * 1.3)
+        // Calcular tokens (palabras * 1.3)
         const wordCount = limitedResponse.split(' ').length;
         const approximateTokens = Math.ceil(wordCount * 1.3);
         setTokens(approximateTokens);
-      } else {
-        setResponse('No se pudo obtener respuesta');
+      } catch (error) {
+        setResponse('Error al procesar pregunta');
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      setResponse('Error: ' + error.message);
-    } finally {
-      setLoading(false);
-    }
+    }, 800);
   };
 
   return (
@@ -107,7 +134,7 @@ export default function Home2({ navigation }) {
           </View>
           <View style={styles.configRow}>
             <Text style={styles.configLabel}>🤖 Modelo:</Text>
-            <Text style={styles.configValue}>Gemini Pro</Text>
+            <Text style={styles.configValue}>React AI Local</Text>
           </View>
         </View>
 
@@ -180,7 +207,7 @@ export default function Home2({ navigation }) {
               • Contexto limitado solo a React{'\n'}
               • Respuestas máximo 50 caracteres{'\n'}
               • Temperatura configurada en 0.8{'\n'}
-              • Powered by Gemini AI
+              • Powered by IA React Native Local
             </Text>
           </View>
         </View>
