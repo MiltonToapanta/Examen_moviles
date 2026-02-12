@@ -130,6 +130,25 @@ export default function Home2({ navigation }) {
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, ''); // Eliminar acentos
 
+    // Paso 0: Validar que la pregunta sea sobre React/React Native
+    const reactKeywords = [
+      'react', 'jsx', 'componente', 'component', 'hook', 'state', 'props',
+      'native', 'expo', 'view', 'text', 'stylesheet', 'flatlist', 'render',
+      'usestate', 'useeffect', 'usememo', 'usecallback', 'useref', 'usecontext',
+      'virtual dom', 'dom', 'ui', 'interfaz', 'app', 'aplicacion', 'movil',
+      'navigation', 'navigator', 'screen', 'pantalla', 'javascript', 'js',
+      'typescript', 'ts', 'mobile', 'android', 'ios', 'frontend', 'web'
+    ];
+
+    const containsReactKeyword = reactKeywords.some(keyword =>
+      lowerQuery.includes(keyword)
+    );
+
+    // Si no contiene ninguna palabra clave de React, rechazar la pregunta
+    if (!containsReactKeyword && lowerQuery.length > 5) {
+      return 'Solo acepto preguntas sobre React o React Native';
+    }
+
     // Paso 1: Búsqueda exacta en base de conocimiento
     for (const [key, value] of Object.entries(REACT_KNOWLEDGE)) {
       if (lowerQuery.includes(key.toLowerCase())) {
@@ -222,7 +241,8 @@ export default function Home2({ navigation }) {
 
     setLoading(true);
     setResponse('');
-    setTokens(0);
+    setToken
+    s(0);
 
     // Simular delay de API
     setTimeout(() => {
@@ -351,9 +371,9 @@ export default function Home2({ navigation }) {
           <View style={styles.infoCard}>
             <Text style={styles.infoText}>
               • Base de conocimiento: 70+ conceptos{'\n'}
-              • Sistema multinivel: 5 niveles de IA{'\n'}
-              • Respuestas máximo 50 caracteres{'\n'}
-              • Temperatura: 0.8 | Powered by IA Local
+              • Sistema multinivel: 6 niveles de IA{'\n'}
+              • Validación de contexto React/RN{'\n'}
+              • Temperatura: 0.8 | Máx 50 caracteres
             </Text>
           </View>
         </View>

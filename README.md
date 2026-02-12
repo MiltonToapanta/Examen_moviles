@@ -82,15 +82,49 @@ const REACT_KNOWLEDGE = {
 **Cómo funciona el contexto:**
 
 1. **Base de conocimiento expandida** (líneas 16-110): Objeto con 70+ conceptos de React/React Native
-2. **Sistema de IA multinivel** (líneas 112-190): La función `generateResponse()` usa 5 niveles de inteligencia
+2. **Sistema de IA multinivel** (líneas 112-190): La función `generateResponse()` usa 6 niveles de inteligencia
 3. **Normalización de texto**: Elimina acentos y convierte a minúsculas
 4. **Expresiones regulares**: Detecta patrones complejos de preguntas
 
 ### 🧠 Sistema de IA Multinivel - Explicación Detallada
 
-La IA funciona con **5 niveles de detección** que se evalúan en orden:
+La IA funciona con **6 niveles de detección** que se evalúan en orden:
 
-#### **Nivel 1: Búsqueda Exacta en Base de Conocimiento**
+#### **Nivel 0: Validación de Contexto React** ⭐ NUEVO
+```javascript
+// Valida que la pregunta sea sobre React/React Native
+const reactKeywords = [
+  'react', 'jsx', 'componente', 'hook', 'state', 'props',
+  'native', 'expo', 'view', 'render', 'navigation', 'ui',
+  'javascript', 'typescript', 'mobile', 'android', 'ios', etc.
+];
+
+if (!containsReactKeyword && lowerQuery.length > 5) {
+  return 'Solo acepto preguntas sobre React o React Native';
+}
+```
+
+**Función:**
+- Detecta si la pregunta contiene palabras relacionadas con React
+- Lista de 30+ keywords de React/React Native/JavaScript
+- Si NO detecta ninguna keyword → Rechaza la pregunta
+- Si detecta al menos una → Continúa al siguiente nivel
+
+**Ejemplos de rechazo:**
+- "¿Qué es Python?" → ❌ "Solo acepto preguntas sobre React o React Native"
+- "¿Cómo cocinar arroz?" → ❌ "Solo acepto preguntas sobre React o React Native"
+- "¿Cuál es la capital de Francia?" → ❌ "Solo acepto preguntas sobre React o React Native"
+- "Háblame de Angular" → ❌ "Solo acepto preguntas sobre React o React Native"
+
+**Ejemplos de aceptación:**
+- "¿Qué es React?" → ✅ Continúa procesando
+- "Cómo usar hooks?" → ✅ Continúa procesando
+- "Explica componentes" → ✅ Continúa procesando
+- "App móvil con JavaScript" → ✅ Continúa procesando
+
+---
+
+#### **Nivel 2: Búsqueda Exacta en Base de Conocimiento**
 ```javascript
 // Busca coincidencias directas en 70+ conceptos
 for (const [key, value] of Object.entries(REACT_KNOWLEDGE)) {
@@ -104,7 +138,7 @@ for (const [key, value] of Object.entries(REACT_KNOWLEDGE)) {
 - Detecta: "usestate" en REACT_KNOWLEDGE
 - Output: "Hook para manejar estado en componentes"
 
-#### **Nivel 2: Patrones de Pregunta Específicos**
+#### **Nivel 3: Patrones de Pregunta Específicos**
 ```javascript
 if (lowerQuery.match(/que es|qué es|what is|define/)) {
   if (lowerQuery.includes('react')) {
@@ -126,7 +160,7 @@ if (lowerQuery.match(/que es|qué es|what is|define/)) {
 - Detecta: Patrón "cómo" + "funciona"
 - Output: "Usa componentes y renderizado virtual"
 
-#### **Nivel 3: Palabras Clave Relacionadas**
+#### **Nivel 4: Palabras Clave Relacionadas**
 ```javascript
 if (lowerQuery.match(/interfaz|ui|vista|pantalla/)) {
   return 'Elementos visuales creados con JSX';
@@ -146,7 +180,7 @@ if (lowerQuery.match(/interfaz|ui|vista|pantalla/)) {
 - Detecta: Palabra clave "optimizar"
 - Output: "Usa memo, useMemo y PureComponent"
 
-#### **Nivel 4: Detección de Temas Generales**
+#### **Nivel 5: Detección de Temas Generales**
 ```javascript
 if (lowerQuery.match(/react native|rn|nativo/)) {
   return 'Framework para apps iOS y Android en JS';
@@ -157,7 +191,7 @@ if (lowerQuery.match(/react native|rn|nativo/)) {
 - React/Biblioteca → UI library
 - JavaScript → Lenguaje base
 
-#### **Nivel 5: Respuesta Inteligente por Defecto**
+#### **Nivel 6: Respuesta Inteligente por Defecto**
 ```javascript
 if (lowerQuery.length > 10) {
   return 'Relacionado con componentes y estado';
@@ -299,7 +333,19 @@ const [tokens, setTokens] = useState(0); // Línea 47 - Estado de tokens
 
 ## 🎯 Ejemplos de Consultas y Respuestas
 
-### Consultas sobre Conceptos Básicos
+### ❌ Validación de Contexto (Preguntas NO sobre React)
+
+| Pregunta | Nivel de Detección | Respuesta |
+|----------|-------------------|-----------|
+| "¿Qué es Python?" | Nivel 0 (Validación) | "Solo acepto preguntas sobre React o React Native" |
+| "¿Cómo cocinar arroz?" | Nivel 0 (Validación) | "Solo acepto preguntas sobre React o React Native" |
+| "Háblame de Angular" | Nivel 0 (Validación) | "Solo acepto preguntas sobre React o React Native" |
+| "Capital de Francia" | Nivel 0 (Validación) | "Solo acepto preguntas sobre React o React Native" |
+| "¿Qué es Laravel?" | Nivel 0 (Validación) | "Solo acepto preguntas sobre React o React Native" |
+
+---
+
+### ✅ Consultas sobre Conceptos Básicos
 
 | Pregunta | Nivel de Detección | Respuesta |
 |----------|-------------------|-----------|
@@ -372,6 +418,14 @@ const [tokens, setTokens] = useState(0); // Línea 47 - Estado de tokens
                │
                ▼
 ┌─────────────────────────────────────────┐
+│  NIVEL 0: Validación de Contexto       │
+│  ¿Contiene keywords de React?          │
+│  ❌ NO → "Solo acepto preguntas React"  │
+│  ✅ SÍ → Continuar                      │
+└──────────────┬──────────────────────────┘
+               │ VÁLIDO
+               ▼
+┌─────────────────────────────────────────┐
 │  NIVEL 1: Búsqueda Exacta               │
 │  ¿Está "usestate" en REACT_KNOWLEDGE?  │
 │  ✅ SÍ → "Hook para manejar estado..."  │
@@ -386,21 +440,28 @@ const [tokens, setTokens] = useState(0); // Línea 47 - Estado de tokens
                │ NO MATCH
                ▼
 ┌─────────────────────────────────────────┐
-│  NIVEL 3: Palabras Clave                │
+│  NIVEL 3: Patrones de Pregunta          │
+│  ¿Contiene "qué es", "cómo", "para qué"?│
+│  ✅ SÍ → Respuesta contextual            │
+└──────────────┬──────────────────────────┘
+               │ NO MATCH
+               ▼
+┌─────────────────────────────────────────┐
+│  NIVEL 4: Palabras Clave                │
 │  ¿Contiene "interfaz", "dato", "optimizar"?│
 │  ✅ SÍ → Respuesta por categoría         │
 └──────────────┬──────────────────────────┘
                │ NO MATCH
                ▼
 ┌─────────────────────────────────────────┐
-│  NIVEL 4: Temas Generales               │
+│  NIVEL 5: Temas Generales               │
 │  ¿Contiene "react", "native", "javascript"?│
 │  ✅ SÍ → Respuesta general del tema      │
 └──────────────┬──────────────────────────┘
                │ NO MATCH
                ▼
 ┌─────────────────────────────────────────┐
-│  NIVEL 5: Respuesta por Defecto         │
+│  NIVEL 6: Respuesta por Defecto         │
 │  Pregunta larga? → Respuesta genérica   │
 │  Pregunta corta? → Pedir más info       │
 └──────────────┬──────────────────────────┘
@@ -624,7 +685,7 @@ Este proyecto es para fines educativos - Examen de Dispositivos Móviles
 ✅ Sistema de IA local (sin conexión a internet requerida)
 ✅ Respuestas instantáneas (sin latencia de API)
 ✅ **70+ conceptos** de React programados (mejorado de 25)
-✅ **5 niveles de inteligencia** para detección de consultas
+✅ **6 niveles de inteligencia** para detección de consultas
 ✅ Interfaz moderna y responsive
 ✅ Cálculo real de tokens
 ✅ Limitación estricta de 50 caracteres
@@ -645,7 +706,18 @@ Este proyecto es para fines educativos - Examen de Dispositivos Móviles
 - Sin normalización de texto
 - Sin detección de patrones
 
-### Versión Actual (Robusta)
+### Versión Actual (Robusta) ⭐ CON VALIDACIÓN
+
+#### ✅ **0. Validación de Contexto React** ⭐ NUEVO
+- **Función**: Rechaza preguntas no relacionadas con React
+- **Keywords**: 30+ palabras clave de React/React Native/JavaScript
+- **Detección**: Valida que la pregunta contenga al menos una keyword
+- **Respuesta de rechazo**: "Solo acepto preguntas sobre React o React Native"
+- **Ejemplos rechazados**:
+  - "¿Qué es Python?" ❌
+  - "¿Cómo cocinar?" ❌
+  - "Háblame de Angular" ❌
+  - "Capital de Francia" ❌
 
 #### ✅ **1. Base de Conocimiento Expandida**
 - **70+ conceptos** (280% más que antes)
@@ -754,7 +826,7 @@ Agrupa respuestas por tema:
 | Patrones de pregunta | 8 tipos |
 | Categorías de palabras clave | 8 categorías |
 | Temas generales | 3 principales |
-| Niveles de detección | 5 niveles |
+| Niveles de detección | 6 niveles |
 | Tasa de respuesta | 100% |
 | Variaciones ortográficas | Ilimitadas |
 | Idiomas soportados | Español/Inglés híbrido |
