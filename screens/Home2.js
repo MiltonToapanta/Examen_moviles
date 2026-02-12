@@ -12,33 +12,111 @@ import {
 
 const TEMPERATURE = 0.8;
 
-// Base de conocimiento sobre React y React Native
+// Base de conocimiento expandida sobre React y React Native
 const REACT_KNOWLEDGE = {
+  // Conceptos fundamentales
   'componente': 'Función o clase que retorna elementos JSX',
+  'component': 'Función o clase que retorna elementos JSX',
   'jsx': 'Sintaxis que combina JavaScript con HTML',
   'props': 'Datos que pasan de padre a hijo componente',
+  'propiedad': 'Datos que pasan de padre a hijo componente',
   'state': 'Datos internos que cambian en componente',
+  'estado': 'Datos internos que cambian en componente',
+
+  // Hooks principales
   'hook': 'Funciones que añaden estado a componentes',
   'usestate': 'Hook para manejar estado en componentes',
-  'useeffect': 'Hook para efectos secundarios',
+  'useeffect': 'Hook para efectos secundarios y ciclo',
+  'usecontext': 'Hook para acceder a contexto global',
+  'usereducer': 'Hook avanzado para estado complejo',
+  'usememo': 'Hook para memorizar valores calculados',
+  'usecallback': 'Hook para memorizar funciones',
+  'useref': 'Hook para referencias mutables',
+  'uselayouteffect': 'useEffect síncrono antes del render',
+
+  // Ciclo de vida
   'render': 'Proceso de mostrar componentes en pantalla',
-  'virtual dom': 'Copia ligera del DOM para optimizar',
+  'lifecycle': 'Ciclo de vida de un componente React',
+  'componentdidmount': 'Método cuando componente se monta',
+  'componentwillunmount': 'Método antes de desmontar componente',
+  'mounting': 'Fase cuando componente se crea',
+  'unmounting': 'Fase cuando componente se destruye',
+
+  // React Native específico
   'native': 'Framework para apps móviles con React',
+  'react native': 'Framework para apps móviles con React',
   'view': 'Contenedor básico en React Native',
   'text': 'Componente para mostrar texto en RN',
   'stylesheet': 'Objeto para definir estilos en RN',
   'flatlist': 'Lista optimizada para renderizar datos',
+  'scrollview': 'Contenedor con scroll vertical/horizontal',
+  'touchableopacity': 'Botón con feedback de opacidad',
   'touchable': 'Componente clickeable en React Native',
+  'image': 'Componente para mostrar imágenes',
+  'textinput': 'Campo de entrada de texto',
+  'modal': 'Componente para ventanas emergentes',
+
+  // Navegación
   'navigation': 'Sistema para navegar entre pantallas',
-  'expo': 'Herramienta para desarrollar con RN',
-  'lifecycle': 'Ciclo de vida de un componente React',
+  'stack navigator': 'Navegación apilada entre pantallas',
+  'tab navigator': 'Navegación por pestañas inferiores',
+  'drawer': 'Menú lateral deslizable',
+
+  // Herramientas y ecosistema
+  'expo': 'Herramienta para desarrollar con RN rápido',
+  'metro': 'Bundler de JavaScript para React Native',
+  'npm': 'Gestor de paquetes de JavaScript',
+  'yarn': 'Gestor de paquetes alternativo a npm',
+
+  // Optimización y rendimiento
+  'virtual dom': 'Copia ligera del DOM para optimizar',
+  'memo': 'HOC para evitar re-renders innecesarios',
+  'purecomponent': 'Componente con comparación superficial',
+  'shouldcomponentupdate': 'Método para optimizar re-renders',
+  'reconciliation': 'Proceso de actualización del DOM',
+
+  // Context API
   'context': 'API para compartir datos globalmente',
+  'provider': 'Componente que provee contexto',
+  'consumer': 'Componente que consume contexto',
+  'createcontext': 'Función para crear nuevo contexto',
+
+  // Estado global
+  'redux': 'Librería para manejo de estado global',
   'reducer': 'Función que maneja cambios de estado',
-  'memo': 'Optimización para evitar re-renders',
-  'key': 'Identificador único para elementos en lista',
+  'action': 'Objeto que describe cambio de estado',
+  'dispatch': 'Función para enviar acciones',
+  'store': 'Contenedor del estado global',
+
+  // Eventos
+  'onpress': 'Evento cuando se toca un componente',
+  'onchange': 'Evento cuando cambia un valor',
+  'event': 'Acción del usuario en la interfaz',
+
+  // JSX y sintaxis
+  'fragment': 'Agrupa elementos sin nodo DOM extra',
+  'children': 'Prop especial con contenido hijo',
+  'key': 'Identificador único para elementos lista',
+  'spread': 'Operador para expandir props {...props}',
+
+  // Refs y DOM
   'ref': 'Referencia directa a elemento del DOM',
-  'fragment': 'Agrupa elementos sin nodo extra',
+  'createref': 'Función para crear referencias',
+  'forwardref': 'Enviar ref a componente hijo',
+
+  // Avanzado
   'portal': 'Renderiza fuera de jerarquía padre',
+  'hoc': 'Higher Order Component, patrón avanzado',
+  'render props': 'Patrón para compartir lógica',
+  'lazy': 'Carga diferida de componentes',
+  'suspense': 'Manejo de carga asíncrona',
+  'error boundary': 'Captura errores en componentes hijos',
+
+  // Estilos
+  'flexbox': 'Sistema de layout para posicionar elementos',
+  'styles': 'Objetos de estilos en React Native',
+  'inline': 'Estilos directos en componente',
+  'styled components': 'Librería para CSS-in-JS',
 };
 
 export default function Home2({ navigation }) {
@@ -48,27 +126,95 @@ export default function Home2({ navigation }) {
   const [loading, setLoading] = useState(false);
 
   const generateResponse = (query) => {
-    const lowerQuery = query.toLowerCase();
+    const lowerQuery = query.toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, ''); // Eliminar acentos
 
-    // Buscar coincidencias en la base de conocimiento
+    // Paso 1: Búsqueda exacta en base de conocimiento
     for (const [key, value] of Object.entries(REACT_KNOWLEDGE)) {
-      if (lowerQuery.includes(key)) {
+      if (lowerQuery.includes(key.toLowerCase())) {
         return value;
       }
     }
 
-    // Respuestas por patrones
-    if (lowerQuery.includes('qué es') || lowerQuery.includes('que es')) {
-      return 'Concepto fundamental en React ecosystem';
-    } else if (lowerQuery.includes('cómo') || lowerQuery.includes('como')) {
-      return 'Se implementa usando funciones y JSX';
-    } else if (lowerQuery.includes('para qué') || lowerQuery.includes('para que')) {
-      return 'Para crear interfaces interactivas';
-    } else if (lowerQuery.includes('diferencia')) {
-      return 'Difieren en uso y optimización';
-    } else {
-      return 'Pregunta sobre React o React Native';
+    // Paso 2: Patrones de pregunta específicos
+    if (lowerQuery.match(/que es|qu[eé] es|what is|define/)) {
+      if (lowerQuery.includes('react')) {
+        return 'Biblioteca JavaScript para interfaces';
+      }
+      return 'Concepto clave en React ecosystem';
     }
+
+    if (lowerQuery.match(/c[oó]mo|how|de qu[eé] manera/)) {
+      if (lowerQuery.includes('funciona')) {
+        return 'Usa componentes y renderizado virtual';
+      }
+      if (lowerQuery.includes('crear') || lowerQuery.includes('hacer')) {
+        return 'Con funciones que retornan JSX';
+      }
+      return 'Se implementa con funciones y JSX';
+    }
+
+    if (lowerQuery.match(/para qu[eé]|por qu[eé]|why|cu[aá]ndo/)) {
+      return 'Para crear UIs interactivas y reactivas';
+    }
+
+    if (lowerQuery.match(/diferencia|vs|versus|comparar/)) {
+      return 'Cada uno tiene ventajas según el caso';
+    }
+
+    if (lowerQuery.match(/ventaja|beneficio|pro/)) {
+      return 'Reutilizable, eficiente y mantenible';
+    }
+
+    if (lowerQuery.match(/ejemplo|sample|demo/)) {
+      return 'Ejemplo: function App() { return <View/> }';
+    }
+
+    // Paso 3: Palabras clave relacionadas
+    if (lowerQuery.match(/interfaz|ui|vista|pantalla/)) {
+      return 'Elementos visuales creados con JSX';
+    }
+
+    if (lowerQuery.match(/dato|informaci[oó]n|valor/)) {
+      return 'Se manejan con state y props en React';
+    }
+
+    if (lowerQuery.match(/funci[oó]n|m[eé]todo|clase/)) {
+      return 'Tipos de componentes en React';
+    }
+
+    if (lowerQuery.match(/cambio|actualiz|modific/)) {
+      return 'Se usa setState o hooks para cambios';
+    }
+
+    if (lowerQuery.match(/m[oó]vil|app|aplicaci[oó]n/)) {
+      return 'React Native para apps móviles nativas';
+    }
+
+    if (lowerQuery.match(/renderiz|dibuj|mostr|pintar/)) {
+      return 'Proceso de convertir JSX en UI visual';
+    }
+
+    if (lowerQuery.match(/optimiz|r[aá]pid|performance|velocidad/)) {
+      return 'Usa memo, useMemo y PureComponent';
+    }
+
+    // Paso 4: Detección de temas generales
+    if (lowerQuery.match(/react native|rn|nativo/)) {
+      return 'Framework para apps iOS y Android en JS';
+    }
+
+    if (lowerQuery.match(/react|biblioteca|library/)) {
+      return 'Biblioteca de Facebook para crear UIs';
+    }
+
+    // Paso 5: Respuesta por defecto inteligente
+    if (lowerQuery.length > 10) {
+      return 'Relacionado con componentes y estado';
+    }
+
+    return 'Hazme una pregunta sobre React Native';
   };
 
   const askQuestion = async () => {
@@ -130,7 +276,7 @@ export default function Home2({ navigation }) {
           </View>
           <View style={styles.configRow}>
             <Text style={styles.configLabel}>📚 Contexto:</Text>
-            <Text style={styles.configValue}>Solo React</Text>
+            <Text style={styles.configValue}>70+ conceptos React</Text>
           </View>
           <View style={styles.configRow}>
             <Text style={styles.configLabel}>🤖 Modelo:</Text>
@@ -204,10 +350,10 @@ export default function Home2({ navigation }) {
           <Text style={styles.sectionTitle}>ℹ️ Información</Text>
           <View style={styles.infoCard}>
             <Text style={styles.infoText}>
-              • Contexto limitado solo a React{'\n'}
+              • Base de conocimiento: 70+ conceptos{'\n'}
+              • Sistema multinivel: 5 niveles de IA{'\n'}
               • Respuestas máximo 50 caracteres{'\n'}
-              • Temperatura configurada en 0.8{'\n'}
-              • Powered by IA React Native Local
+              • Temperatura: 0.8 | Powered by IA Local
             </Text>
           </View>
         </View>
