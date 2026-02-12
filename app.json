@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "AI7 Life",
+    "slug": "ai7-life",
+    "version": "1.0.0",
+    "sdkVersion": "54.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#00B894"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ai7life.app"
+    },
+    "android": {
+      "package": "com.ai7life.app",
+      "backgroundColor": "#00B894"
+    },
+    "web": {}
+  }
+}
