@@ -12,26 +12,84 @@ import {
 
 const TEMPERATURE = 0.8;
 
-// Base de conocimiento expandida sobre React y React Native
+// Base de conocimiento expandida con respuestas múltiples
 const REACT_KNOWLEDGE = {
-  // Conceptos fundamentales
-  'componente': 'Función o clase que retorna elementos JSX',
-  'component': 'Función o clase que retorna elementos JSX',
-  'jsx': 'Sintaxis que combina JavaScript con HTML',
-  'props': 'Datos que pasan de padre a hijo componente',
-  'propiedad': 'Datos que pasan de padre a hijo componente',
-  'state': 'Datos internos que cambian en componente',
-  'estado': 'Datos internos que cambian en componente',
+  // Conceptos fundamentales (con variaciones para temperatura)
+  'componente': [
+    'Función o clase que retorna elementos JSX',
+    'Bloque reutilizable de interfaz en React',
+    'Pieza modular que compone una UI'
+  ],
+  'component': [
+    'Función o clase que retorna elementos JSX',
+    'Bloque reutilizable de interfaz en React',
+    'Pieza modular que compone una UI'
+  ],
+  'jsx': [
+    'Sintaxis que combina JavaScript con HTML',
+    'Extensión de JS para escribir UI declarativa',
+    'JavaScript XML para crear elementos'
+  ],
+  'props': [
+    'Datos que pasan de padre a hijo componente',
+    'Propiedades inmutables del componente',
+    'Argumentos que recibe un componente'
+  ],
+  'propiedad': [
+    'Datos que pasan de padre a hijo componente',
+    'Propiedades inmutables del componente'
+  ],
+  'state': [
+    'Datos internos que cambian en componente',
+    'Estado mutable local del componente',
+    'Variables reactivas que causan re-render'
+  ],
+  'estado': [
+    'Datos internos que cambian en componente',
+    'Estado mutable local del componente'
+  ],
 
-  // Hooks principales
-  'hook': 'Funciones que añaden estado a componentes',
-  'usestate': 'Hook para manejar estado en componentes',
-  'useeffect': 'Hook para efectos secundarios y ciclo',
-  'usecontext': 'Hook para acceder a contexto global',
-  'usereducer': 'Hook avanzado para estado complejo',
-  'usememo': 'Hook para memorizar valores calculados',
-  'usecallback': 'Hook para memorizar funciones',
-  'useref': 'Hook para referencias mutables',
+  // Hooks principales (con variaciones)
+  'hook': [
+    'Funciones que añaden estado a componentes',
+    'APIs para usar features de React',
+    'Funciones especiales para lógica reutilizable'
+  ],
+  'usestate': [
+    'Hook para manejar estado en componentes',
+    'Crea variable de estado reactiva',
+    'Maneja estado local en funciones'
+  ],
+  'useeffect': [
+    'Hook para efectos secundarios y ciclo',
+    'Ejecuta código después del render',
+    'Maneja side effects en componentes'
+  ],
+  'usecontext': [
+    'Hook para acceder a contexto global',
+    'Lee valores del Context Provider',
+    'Consume datos compartidos globalmente'
+  ],
+  'usereducer': [
+    'Hook avanzado para estado complejo',
+    'Maneja estado con patrón reducer',
+    'Alternativa a useState para lógica compleja'
+  ],
+  'usememo': [
+    'Hook para memorizar valores calculados',
+    'Optimiza cálculos costosos',
+    'Cachea resultados entre renders'
+  ],
+  'usecallback': [
+    'Hook para memorizar funciones',
+    'Evita recrear funciones en cada render',
+    'Optimiza callbacks pasados como props'
+  ],
+  'useref': [
+    'Hook para referencias mutables',
+    'Accede a elementos DOM directamente',
+    'Guarda valores sin causar re-render'
+  ],
   'uselayouteffect': 'useEffect síncrono antes del render',
 
   // Ciclo de vida
@@ -125,6 +183,51 @@ export default function Home2({ navigation }) {
   const [tokens, setTokens] = useState(0);
   const [loading, setLoading] = useState(false);
 
+  // Función para seleccionar respuesta usando temperatura
+  const selectWithTemperature = (responses, temperature) => {
+    if (typeof responses === 'string') {
+      return responses; // Si es string único, retornar directamente
+    }
+
+    if (!Array.isArray(responses) || responses.length === 0) {
+      return 'Respuesta no disponible';
+    }
+
+    // Temperatura alta (0.8): más variabilidad, explora todas las opciones
+    // Temperatura baja (0.0): siempre la primera opción
+
+    // Generar probabilidades basadas en temperatura
+    const numOptions = responses.length;
+
+    if (temperature === 0) {
+      return responses[0]; // Temperatura 0: siempre la primera
+    }
+
+    // Con temperatura 0.8, probabilidades distribuidas
+    // Usamos un random ponderado por temperatura
+    const weights = responses.map((_, index) => {
+      const base = 1.0 / numOptions; // Probabilidad base uniforme
+      const variance = temperature * (Math.random() - 0.5);
+      return Math.max(0.1, base + variance); // Mínimo 0.1 para que todas tengan chance
+    });
+
+    const totalWeight = weights.reduce((sum, w) => sum + w, 0);
+    const normalizedWeights = weights.map(w => w / totalWeight);
+
+    // Selección basada en probabilidades
+    let random = Math.random();
+    let cumulativeProbability = 0;
+
+    for (let i = 0; i < responses.length; i++) {
+      cumulativeProbability += normalizedWeights[i];
+      if (random <= cumulativeProbability) {
+        return responses[i];
+      }
+    }
+
+    return responses[0]; // Fallback
+  };
+
   const generateResponse = (query) => {
     const lowerQuery = query.toLowerCase()
       .normalize('NFD')
@@ -149,41 +252,73 @@ export default function Home2({ navigation }) {
       return 'Solo acepto preguntas sobre React o React Native';
     }
 
-    // Paso 1: Búsqueda exacta en base de conocimiento
+    // Paso 1: Búsqueda exacta en base de conocimiento (usando temperatura)
     for (const [key, value] of Object.entries(REACT_KNOWLEDGE)) {
       if (lowerQuery.includes(key.toLowerCase())) {
-        return value;
+        return selectWithTemperature(value, TEMPERATURE);
       }
     }
 
-    // Paso 2: Patrones de pregunta específicos
+    // Paso 2: Patrones de pregunta específicos (con temperatura)
     if (lowerQuery.match(/que es|qu[eé] es|what is|define/)) {
       if (lowerQuery.includes('react')) {
-        return 'Biblioteca JavaScript para interfaces';
+        return selectWithTemperature([
+          'Biblioteca JavaScript para interfaces',
+          'Librería de Facebook para crear UIs',
+          'Framework declarativo para interfaces web'
+        ], TEMPERATURE);
       }
-      return 'Concepto clave en React ecosystem';
+      return selectWithTemperature([
+        'Concepto clave en React ecosystem',
+        'Elemento fundamental de React',
+        'Pieza importante en desarrollo React'
+      ], TEMPERATURE);
     }
 
     if (lowerQuery.match(/c[oó]mo|how|de qu[eé] manera/)) {
       if (lowerQuery.includes('funciona')) {
-        return 'Usa componentes y renderizado virtual';
+        return selectWithTemperature([
+          'Usa componentes y renderizado virtual',
+          'Con JSX y actualizaciones eficientes',
+          'Mediante componentes y Virtual DOM'
+        ], TEMPERATURE);
       }
       if (lowerQuery.includes('crear') || lowerQuery.includes('hacer')) {
-        return 'Con funciones que retornan JSX';
+        return selectWithTemperature([
+          'Con funciones que retornan JSX',
+          'Usando componentes funcionales',
+          'Definiendo funciones con JSX'
+        ], TEMPERATURE);
       }
-      return 'Se implementa con funciones y JSX';
+      return selectWithTemperature([
+        'Se implementa con funciones y JSX',
+        'Usando componentes de React',
+        'Con sintaxis JSX y componentes'
+      ], TEMPERATURE);
     }
 
     if (lowerQuery.match(/para qu[eé]|por qu[eé]|why|cu[aá]ndo/)) {
-      return 'Para crear UIs interactivas y reactivas';
+      return selectWithTemperature([
+        'Para crear UIs interactivas y reactivas',
+        'Para construir interfaces dinámicas',
+        'Para desarrollar apps web modernas'
+      ], TEMPERATURE);
     }
 
     if (lowerQuery.match(/diferencia|vs|versus|comparar/)) {
-      return 'Cada uno tiene ventajas según el caso';
+      return selectWithTemperature([
+        'Cada uno tiene ventajas según el caso',
+        'Difieren en uso y optimización',
+        'Cada opción sirve propósitos distintos'
+      ], TEMPERATURE);
     }
 
     if (lowerQuery.match(/ventaja|beneficio|pro/)) {
-      return 'Reutilizable, eficiente y mantenible';
+      return selectWithTemperature([
+        'Reutilizable, eficiente y mantenible',
+        'Modular, rápido y escalable',
+        'Componible, optimizado y flexible'
+      ], TEMPERATURE);
     }
 
     if (lowerQuery.match(/ejemplo|sample|demo/)) {

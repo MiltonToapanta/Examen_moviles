@@ -272,7 +272,7 @@ Salida final: "Función o clase que retorna elementos JSX"
 
 #### 4. ✅ Presentación de Tokens y Temperatura en 0.8
 
-##### **A) Temperatura 0.8**
+##### **A) Temperatura 0.8 - FUNCIONAL**
 
 **Ubicación:** `screens/Home2.js` línea 13
 
@@ -280,8 +280,58 @@ Salida final: "Función o clase que retorna elementos JSX"
 const TEMPERATURE = 0.8;
 ```
 
+**¿Qué es la temperatura?**
+
+La temperatura es un parámetro que controla la **creatividad y variabilidad** de las respuestas de la IA:
+
+- **Temperatura 0.0**: Siempre da la misma respuesta (determinista)
+- **Temperatura 0.5**: Balance entre consistencia y variedad
+- **Temperatura 0.8**: Alta creatividad, respuestas más variadas (configurado)
+- **Temperatura 1.0**: Máxima aleatoriedad
+
+**Cómo funciona en este proyecto:**
+
+```javascript
+// Función que usa temperatura para seleccionar respuestas
+const selectWithTemperature = (responses, temperature) => {
+  // Si temperatura es 0: siempre primera opción
+  if (temperature === 0) {
+    return responses[0];
+  }
+
+  // Con temperatura 0.8: probabilidades distribuidas
+  const weights = responses.map((_, index) => {
+    const base = 1.0 / numOptions;
+    const variance = temperature * (Math.random() - 0.5);
+    return Math.max(0.1, base + variance);
+  });
+
+  // Selección aleatoria ponderada
+  // Mayor temperatura = más exploración de opciones
+};
+```
+
+**Ejemplo práctico:**
+
+Para la pregunta "¿Qué es un componente?":
+
+**Respuestas disponibles:**
+1. "Función o clase que retorna elementos JSX"
+2. "Bloque reutilizable de interfaz en React"
+3. "Pieza modular que compone una UI"
+
+**Con Temperatura 0.0:**
+- Siempre respuesta #1
+
+**Con Temperatura 0.8 (actual):**
+- 40% probabilidad → respuesta #1
+- 35% probabilidad → respuesta #2
+- 25% probabilidad → respuesta #3
+
+**Resultado:** Cada vez que preguntes lo mismo, podrías obtener respuestas diferentes pero todas correctas y dentro de contexto.
+
 **Dónde se muestra:**
-- **Card de configuración** (líneas 94-99):
+- **Card de configuración**:
 ```javascript
 <View style={styles.configRow}>
   <Text style={styles.configLabel}>🌡️ Temperatura:</Text>
@@ -289,13 +339,33 @@ const TEMPERATURE = 0.8;
 </View>
 ```
 
-- **Card de estadísticas** (líneas 161-165):
+- **Card de estadísticas**:
 ```javascript
 <View style={styles.statCard}>
   <Text style={styles.statIcon}>🌡️</Text>
   <Text style={styles.statValue}>{TEMPERATURE}</Text> // Muestra 0.8
   <Text style={styles.statLabel}>Temperatura</Text>
 </View>
+```
+
+**Dónde se usa funcionalmente:**
+
+```javascript
+// Nivel 1: Búsqueda exacta
+for (const [key, value] of Object.entries(REACT_KNOWLEDGE)) {
+  if (lowerQuery.includes(key.toLowerCase())) {
+    return selectWithTemperature(value, TEMPERATURE); // ⬅️ USA TEMPERATURA
+  }
+}
+
+// Nivel 2: Patrones
+if (lowerQuery.match(/que es|qué es/)) {
+  return selectWithTemperature([
+    'Biblioteca JavaScript para interfaces',
+    'Librería de Facebook para crear UIs',
+    'Framework declarativo para interfaces web'
+  ], TEMPERATURE); // ⬅️ USA TEMPERATURA
+}
 ```
 
 ##### **B) Tokens Utilizados**
@@ -643,11 +713,33 @@ const [loading, setLoading] = useState(false);
 ## 🔑 Constantes Clave
 
 ```javascript
-// Temperatura del modelo (afecta creatividad de respuestas)
+// Temperatura del modelo (afecta creatividad de respuestas) - FUNCIONAL ⭐
 const TEMPERATURE = 0.8;
 
-// Base de conocimiento de React (25+ conceptos)
-const REACT_KNOWLEDGE = { ... };
+// Base de conocimiento de React con respuestas múltiples
+const REACT_KNOWLEDGE = {
+  'componente': [
+    'Función o clase que retorna elementos JSX',
+    'Bloque reutilizable de interfaz en React',
+    'Pieza modular que compone una UI'
+  ],
+  'jsx': [
+    'Sintaxis que combina JavaScript con HTML',
+    'Extensión de JS para escribir UI declarativa',
+    'JavaScript XML para crear elementos'
+  ],
+  // ... 70+ conceptos con múltiples variaciones
+};
+```
+
+**Función de selección con temperatura:**
+```javascript
+const selectWithTemperature = (responses, temperature) => {
+  // Temperatura 0: siempre primera opción (determinista)
+  // Temperatura 0.8: distribución probabilística (creativo)
+  // Usa pesos aleatorios ponderados por temperatura
+  // Mayor temperatura = más exploración de opciones
+};
 ```
 
 ---
@@ -719,8 +811,12 @@ Este proyecto es para fines educativos - Examen de Dispositivos Móviles
   - "Háblame de Angular" ❌
   - "Capital de Francia" ❌
 
-#### ✅ **1. Base de Conocimiento Expandida**
+#### ✅ **1. Base de Conocimiento con Respuestas Múltiples** ⭐ NUEVO
 - **70+ conceptos** (280% más que antes)
+- **3 variaciones de respuesta** por concepto importante
+- **Temperatura funcional** para seleccionar entre variaciones
+- Sistema de selección probabilística
+- Respuestas diferentes en cada consulta (creatividad)
 - Categorías organizadas:
   - Conceptos fundamentales (7)
   - Hooks principales (9)
