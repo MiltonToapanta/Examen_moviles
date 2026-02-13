@@ -241,10 +241,9 @@ export default function Home2({ navigation }) {
 
     setLoading(true);
     setResponse('');
-    setToken
-    s(0);
+    setTokens(0);
 
-    // Simular delay de API
+    // Simular delay de API (reducido para mejor UX)
     setTimeout(() => {
       try {
         const generatedText = generateResponse(question);
@@ -260,7 +259,7 @@ export default function Home2({ navigation }) {
       } finally {
         setLoading(false);
       }
-    }, 800);
+    }, 300);
   };
 
   return (
